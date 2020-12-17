@@ -104,6 +104,41 @@ struct header_n {
 };
 
 
+// range op: return range transformed with op
+template <class Op>
+struct mapper_op {
+	Op op;
+
+	template <class End>
+	struct end_iterator { End it; };
+
+	template <class It>
+	struct iterator {
+		It it;
+		Op op;
+
+		auto operator*() -> decltype(op(*it)) { return op(*it); }
+		iterator &operator++() { ++it; return *this; }
+
+		template <class End>
+		bool operator!=(const iterator<End> &end) const
+		{ return it != end.it; }
+	};
+
+	template <class It, class End=It>
+	auto operator()(It begin, End end) const
+	  -> iter_range<iterator<It>, end_iterator<End>>
+	{ return {{begin, op}, {end}}; }
+};
+
+
+struct mapper {
+	template <class Op>
+	mapper_op<Op> operator-(Op &&op) { return {std::forward<Op>(op)}; }
+} map;
+
+
+
 // range op: output items in range to ostream
 struct printer_os {
 	std::ostream &os;
