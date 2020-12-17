@@ -104,13 +104,20 @@ struct header {
 } head;
 
 
-struct printer {
+struct printer_os {
+	std::ostream &os;
+
 	template <class It, class End=It>
 	void operator()(It begin, End end) const
 	{
 		for (It it = begin; it != end; ++it)
 			std::cout << *it << "\n";
 	}
+};
+
+
+struct printer {
+	printer_os operator-(std::ostream &os) { return {os}; }
 } printy;
 
 
@@ -120,10 +127,10 @@ int main()
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
 
-	seq | sort | uniq_c | sort_n | printy;
+	seq | sort | uniq_c | sort_n | printy -std::cout;
 
 	std::cout << "\n----------\n\n";
 
-	seq | sort | uniq_c | sort_n | head -3 | printy;
+	seq | sort | uniq_c | sort_n | head -3 | printy -std::cout;
 }
 
