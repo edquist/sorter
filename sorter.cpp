@@ -74,6 +74,33 @@ struct sorter {
 } sort, sort_n;
 
 
+// range op: return range of unique items
+struct uniq_lister {
+	template <class It>
+	using vtype = std::vector<it_val_t<It>>;
+
+	template <class It, class End=It>
+	auto operator()(It begin, End end) const -> vtype<It>
+	{
+		if (!(begin != end))  // if (begin == end)
+			return {};
+
+		vtype<It> v;
+		it_val_t<It> val = *begin;
+		for (It it = ++begin; it != end; ++it) {
+			it_val_t<It> next = *it;
+			if (next != val) {
+				// c++20: co_yield {val};
+				v.emplace_back(std::move(val));
+				val = std::move(next);
+			}
+		}
+		v.emplace_back(std::move(val));
+		return v;
+	}
+} uniq;
+
+
 // range op: return 'uniq -c'-like range of (count,item) pairs
 struct uniq_counter {
 	template <class It>
@@ -206,6 +233,10 @@ int main()
 	auto seq = {99, 3, 1, 3, 3, 7, 99,
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
+
+	seq | sort | uniq | printy -std::cout;
+
+	echo -"\n----------\n" | printy -std::cout;
 
 	seq | sort | uniq_c | sort_n | printy -std::cout;
 
