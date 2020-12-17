@@ -186,6 +186,18 @@ flagger_t<single_range> echo;
 flagger_t<mapper_op>    map;
 
 
+// map (n,m) -> n*1000 + m
+struct pairstacker {
+	template <class Pair>
+	auto operator()(Pair &&p) ->
+	decltype(std::forward<Pair>(p).first + std::forward<Pair>(p).second)
+	{
+		return std::forward<Pair>(p).first * 1000
+		     + std::forward<Pair>(p).second;
+	}
+} pairstack;
+
+
 int main()
 {
 	auto seq = {99, 3, 1, 3, 3, 7, 99,
@@ -197,5 +209,9 @@ int main()
 	echo -"\n----------\n" | printy -std::cout;
 
 	seq | sort | uniq_c | sort_n | head -3 | printy -std::cout;
+
+	echo -"\n----------\n" | printy -std::cout;
+
+	seq | sort | uniq_c | sort_n | map -pairstack | printy -std::cout;
 }
 
