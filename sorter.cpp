@@ -1,3 +1,6 @@
+// misc range-like helpers to facilitate composing shell-like pipelines
+
+
 #include <utility>
 #include <algorithm>
 #include <iostream>
