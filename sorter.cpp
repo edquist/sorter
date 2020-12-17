@@ -10,13 +10,14 @@ std::ostream &operator<<(std::ostream &os, const std::pair<T,U> &p)
 { return os << p.first << '\t' << p.second; }
 
 
+// 'pipe' seq range into range op
 template <class Seq, class Op>
 auto operator|(Seq &&seq, Op &&op) ->
 decltype(op(seq.begin(), seq.end()))
 { return op(seq.begin(), seq.end()); }
 
 
-// try to get the value_type for an iterator
+// helper template to get the value_type for an iterator
 template <class It>
 using it_val_t = typename std::remove_const<
 	typename std::remove_reference< 
@@ -25,6 +26,7 @@ using it_val_t = typename std::remove_const<
 >::type;
 
 
+// range op: return sorted range
 struct sorter {
 	template <class It>
 	using vtype = std::vector<it_val_t<It>>;
@@ -39,6 +41,7 @@ struct sorter {
 } sort, sort_n;
 
 
+// range op: return 'uniq -c'-like range of (count,item) pairs
 struct uniq_counter {
 	template <class It>
 	using vtype = std::vector<std::pair<size_t, it_val_t<It>>>;
@@ -76,6 +79,7 @@ struct iter_range {
 };
 
 
+// range op: return range over first n items
 struct header_n {
 	size_t n;
 
@@ -99,6 +103,7 @@ struct header_n {
 };
 
 
+// range op: output items in range to ostream
 struct printer_os {
 	std::ostream &os;
 
@@ -111,6 +116,7 @@ struct printer_os {
 };
 
 
+// initialize Op with -flag
 template <class Op, class Flag>
 struct flagger { Op operator-(Flag flag) { return {flag}; } };
 
