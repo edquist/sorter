@@ -104,20 +104,26 @@ struct header {
 } head;
 
 
+struct printer {
+	template <class It, class End=It>
+	void operator()(It begin, End end) const
+	{
+		for (It it = begin; it != end; ++it)
+			std::cout << *it << "\n";
+	}
+} printy;
+
+
 int main()
 {
 	auto seq = {99, 3, 1, 3, 3, 7, 99,
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
 
-	auto v = seq | sort | uniq_c | sort_n;
-	for (auto &&x : v)
-		std::cout << x << "\n";
+	seq | sort | uniq_c | sort_n | printy;
 
 	std::cout << "\n----------\n\n";
 
-	auto v2 = seq | sort | uniq_c | sort_n | head -3;
-	for (auto &&x : v2)
-		std::cout << x << "\n";
+	seq | sort | uniq_c | sort_n | head -3 | printy;
 }
 
