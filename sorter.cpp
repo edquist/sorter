@@ -120,7 +120,7 @@ struct uniq_counter {
 			if (next == val) {
 				++n;
 			} else {
-			       	// c++20: co_yield {n, val};
+				// c++20: co_yield {n, val};
 				v.emplace_back(n, std::move(val));
 				val = std::move(next);
 				n = 1;
