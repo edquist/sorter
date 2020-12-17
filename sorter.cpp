@@ -26,6 +26,36 @@ using it_val_t = typename std::remove_const<
 >::type;
 
 
+// range to wrap an arbitrary iterator pair
+template <class It, class End=It>
+struct iter_range {
+	It  _begin, begin() const { return _begin; }
+	End _end,   end()   const { return _end;   }
+};
+
+
+// range to wrap a single item
+template <class T>
+struct single_range {
+	T item;
+
+	struct end_iterator {};
+
+	struct iterator {
+		T item;
+		bool done;
+
+		iterator &operator++() { ++done; return *this; }
+		T operator*() const { return item; }
+
+		bool operator!=(end_iterator) const { return !done; }
+	};
+
+	iterator     begin() const { return {std::forward<T>(item)}; }
+	end_iterator   end() const { return {}; }
+};
+
+
 // range op: return sorted range
 struct sorter {
 	template <class It>
@@ -70,14 +100,6 @@ struct uniq_counter {
 		return v;
 	}
 } uniq_c;
-
-
-// range to wrap an arbitrary iterator pair
-template <class It, class End=It>
-struct iter_range {
-	It  _begin, begin() const { return _begin; }
-	End _end,   end()   const { return _end;   }
-};
 
 
 // range op: return range over first n items
@@ -158,28 +180,6 @@ struct flagger { Op operator-(Flag flag) { return {flag}; } };
 
 flagger<header_n,   size_t>          head;
 flagger<printer_os, std::ostream &>  printy;
-
-
-// range to wrap a single item
-template <class T>
-struct single_range {
-	T item;
-
-	struct end_iterator {};
-
-	struct iterator {
-		T item;
-		bool done;
-
-		iterator &operator++() { ++done; return *this; }
-		T operator*() const { return item; }
-
-		bool operator!=(end_iterator) const { return !done; }
-	};
-
-	iterator     begin() const { return {std::forward<T>(item)}; }
-	end_iterator   end() const { return {}; }
-};
 
 
 // range op: return range wrapping a single item
