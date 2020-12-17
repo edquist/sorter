@@ -154,13 +154,6 @@ struct mapper_op {
 };
 
 
-struct mapper {
-	template <class Op>
-	mapper_op<Op> operator-(Op &&op) { return {std::forward<Op>(op)}; }
-} map;
-
-
-
 // range op: output items in range to ostream
 struct printer_os {
 	std::ostream &os;
@@ -182,11 +175,15 @@ flagger<header_n,   size_t>          head;
 flagger<printer_os, std::ostream &>  printy;
 
 
-// range op: return range wrapping a single item
-struct echower {
-	template <class T>
-	single_range<T> operator-(T &&x) { return {std::forward<T>(x)}; }
-} echo;
+// initialize OpT<Flag> with -flag
+template <template <class> class OpT>
+struct flagger_t {
+	template <class Flag>
+	OpT<Flag> operator-(Flag &&flag) { return {std::forward<Flag>(flag)}; }
+};
+
+flagger_t<single_range> echo;
+flagger_t<mapper_op>    map;
 
 
 int main()
