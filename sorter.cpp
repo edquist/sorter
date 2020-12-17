@@ -143,7 +143,7 @@ struct mapper_op {
 		iterator &operator++() { ++it; return *this; }
 
 		template <class End>
-		bool operator!=(const iterator<End> &end) const
+		bool operator!=(const End &end) const
 		{ return it != end.it; }
 	};
 
