@@ -106,7 +106,7 @@ struct printer_os {
 	void operator()(It begin, End end) const
 	{
 		for (It it = begin; it != end; ++it)
-			std::cout << *it << "\n";
+			os << *it << "\n";
 	}
 };
 
