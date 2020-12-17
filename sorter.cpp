@@ -197,6 +197,7 @@ struct printer_os {
 };
 
 
+
 // initialize Op with -flag
 template <class Op, class Flag>
 struct flagger { Op operator-(Flag flag) { return {flag}; } };
@@ -231,6 +232,36 @@ sorter operator-(sorter, flag_option<'n'>) { return {}; }
 uniq_counter operator-(uniq_lister, flag_option<'c'>) { return {}; }
 
 
+// 'output' range to ostream
+template <class Seq>
+auto operator>(Seq &&seq, std::ostream &os) ->
+decltype(seq | printer_os{os} )
+{ return seq | printer_os{os}; }
+
+
+template <class Op>
+struct broker {
+	Op op;
+	std::ostream &os;
+};
+
+
+template <class Op>
+auto operator>(Op op, std::ostream &os) ->
+decltype((void)(op(std::declval<std::vector<int>>().begin(),
+                   std::declval<std::vector<int>>().end())),
+          std::declval<broker<Op>>())
+{ return {op, os}; }
+
+
+template <class Seq, class Broker>
+auto operator|(Seq &&seq, Broker &&b) ->
+decltype((std::forward<Seq>(seq) | std::forward<Broker>(b).op)
+                                 > std::forward<Broker>(b).os)
+{ return (std::forward<Seq>(seq) | std::forward<Broker>(b).op)
+                                 > std::forward<Broker>(b).os; }
+
+
 // map (n,m) -> n*1000 + m
 struct pairstacker {
 	template <class Pair>
@@ -249,7 +280,7 @@ int main()
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
 
-	seq | sort | uniq | printy -std::cout;
+	seq | sort | uniq > std::cout;
 
 	echo -"\n----------\n" | printy -std::cout;
 
