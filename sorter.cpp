@@ -212,8 +212,8 @@ struct flagger_t {
 	OpT<Flag> operator-(Flag &&flag) { return {std::forward<Flag>(flag)}; }
 };
 
-flagger_t<single_range> echo;
-flagger_t<mapper_op>    map;
+flagger_t<single_range> echo;  // return range for single -value
+flagger_t<mapper_op>    map;   // return range transformed with -operator
 
 
 // valueless type-constants representing options for converting types
