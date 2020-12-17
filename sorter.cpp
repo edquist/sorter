@@ -216,6 +216,7 @@ flagger_t<single_range> echo;
 flagger_t<mapper_op>    map;
 
 
+// valueless type-constants representing options for converting types
 template <char Flag>
 struct flag_option {};
 
