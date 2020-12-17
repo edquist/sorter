@@ -99,11 +99,6 @@ struct header_n {
 };
 
 
-struct header {
-	header_n operator-(size_t n) { return {n}; }
-} head;
-
-
 struct printer_os {
 	std::ostream &os;
 
@@ -116,9 +111,11 @@ struct printer_os {
 };
 
 
-struct printer {
-	printer_os operator-(std::ostream &os) { return {os}; }
-} printy;
+template <class Op, class Flag>
+struct flagger { Op operator-(Flag flag) { return {flag}; } };
+
+flagger<header_n,   size_t>          head;
+flagger<printer_os, std::ostream &>  printy;
 
 
 int main()
