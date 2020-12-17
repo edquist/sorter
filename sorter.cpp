@@ -48,7 +48,7 @@ struct single_range {
 		T item;
 		bool done;
 
-		iterator &operator++() { ++done; return *this; }
+		iterator &operator++() { done = true; return *this; }
 		T operator*() const { return item; }
 
 		bool operator!=(end_iterator) const { return !done; }
