@@ -216,6 +216,20 @@ flagger_t<single_range> echo;
 flagger_t<mapper_op>    map;
 
 
+template <char Flag>
+struct flag_option {};
+
+flag_option<'n'> n;
+flag_option<'c'> c;
+
+
+// 'sort -n' is the same as sort
+sorter operator-(sorter, flag_option<'n'>) { return {}; }
+
+// 'uniq -c' -> uniq_c
+uniq_counter operator-(uniq_lister, flag_option<'c'>) { return {}; }
+
+
 // map (n,m) -> n*1000 + m
 struct pairstacker {
 	template <class Pair>
@@ -238,14 +252,14 @@ int main()
 
 	echo -"\n----------\n" | printy -std::cout;
 
-	seq | sort | uniq_c | sort_n | printy -std::cout;
+	seq | sort | uniq -c | sort -n | printy -std::cout;
 
 	echo -"\n----------\n" | printy -std::cout;
 
-	seq | sort | uniq_c | sort_n | head -3 | printy -std::cout;
+	seq | sort | uniq -c | sort -n | head -3 | printy -std::cout;
 
 	echo -"\n----------\n" | printy -std::cout;
 
-	seq | sort | uniq_c | sort_n | map -pairstack | printy -std::cout;
+	seq | sort | uniq -c | sort -n | map -pairstack | printy -std::cout;
 }
 
