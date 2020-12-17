@@ -72,6 +72,7 @@ struct uniq_counter {
 } uniq_c;
 
 
+// range to wrap an arbitrary iterator pair
 template <class It, class End=It>
 struct iter_range {
 	It  _begin, begin() const { return _begin; }
@@ -124,6 +125,35 @@ flagger<header_n,   size_t>          head;
 flagger<printer_os, std::ostream &>  printy;
 
 
+// range to wrap a single item
+template <class T>
+struct single_range {
+	T item;
+
+	struct end_iterator {};
+
+	struct iterator {
+		T item;
+		bool done;
+
+		iterator &operator++() { ++done; return *this; }
+		T operator*() const { return item; }
+
+		bool operator!=(end_iterator) const { return !done; }
+	};
+
+	iterator     begin() const { return {std::forward<T>(item)}; }
+	end_iterator   end() const { return {}; }
+};
+
+
+// range op: return range wrapping a single item
+struct echower {
+	template <class T>
+	single_range<T> operator-(T &&x) { return {std::forward<T>(x)}; }
+} echo;
+
+
 int main()
 {
 	auto seq = {99, 3, 1, 3, 3, 7, 99,
@@ -132,7 +162,7 @@ int main()
 
 	seq | sort | uniq_c | sort_n | printy -std::cout;
 
-	std::cout << "\n----------\n\n";
+	echo -"\n----------\n" | printy -std::cout;
 
 	seq | sort | uniq_c | sort_n | head -3 | printy -std::cout;
 }
