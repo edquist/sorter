@@ -69,11 +69,55 @@ struct uniq_counter {
 } uniq_c;
 
 
+template <class It, class End=It>
+struct iter_range {
+	It  _begin, begin() const { return _begin; }
+	End _end,   end()   const { return _end;   }
+};
+
+
+struct header_n {
+	size_t n;
+
+	template <class It>
+	struct iterator {
+		It it;
+		size_t n;
+
+		auto operator*() -> decltype(*it) { return *it; }
+		iterator &operator++() { ++it; ++n; return *this; }
+
+		template <class End>
+		bool operator!=(const iterator<End> &end) const
+		{ return n != end.n && it != end.it; }
+	};
+
+	template <class It, class End=It>
+	auto operator()(It begin, End end) const
+	  -> iter_range<iterator<It>, iterator<End>>
+	{ return {{begin, 0}, {end, n}}; }
+};
+
+
+struct header {
+	header_n operator-(size_t n) { return {n}; }
+} head;
+
+
 int main()
 {
-	auto seq = {99, 3, 1, 3, 3, 7, 99};
+	auto seq = {99, 3, 1, 3, 3, 7, 99,
+	            4, 4, 4, 4,
+	            2, 2, 2, 2, 2};
+
 	auto v = seq | sort | uniq_c | sort_n;
 	for (auto &&x : v)
+		std::cout << x << "\n";
+
+	std::cout << "\n----------\n\n";
+
+	auto v2 = seq | sort | uniq_c | sort_n | head -3;
+	for (auto &&x : v2)
 		std::cout << x << "\n";
 }
 
