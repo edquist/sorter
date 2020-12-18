@@ -288,18 +288,18 @@ int main()
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
 
-	seq | sort | uniq > std::cout;
+	seq | sort | uniq                               > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | printy -std::cout;
+	seq | sort | uniq -c | sort -n                  > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | head -3 | printy -std::cout;
+	seq | sort | uniq -c | sort -n | head -3        > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | map -pairstack | printy -std::cout;
+	seq | sort | uniq -c | sort -n | map -pairstack > std::cout;
 }
 
