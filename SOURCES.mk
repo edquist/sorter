@@ -2,5 +2,5 @@
 
 CXXFLAGS += -Wno-parentheses
 
-SRCS.sorter = sorter.cpp
+SRCS.sorta = sorter.cpp
 
