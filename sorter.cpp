@@ -29,6 +29,11 @@ using it_val_t = typename std::remove_const<
 >::type;
 
 
+// return first type; discard other types used to test expressions
+template <class T, class ...>
+using first_t = T;
+
+
 // range to wrap an arbitrary iterator pair
 template <class It, class End=It>
 struct iter_range {
@@ -247,11 +252,10 @@ struct broker {
 
 
 template <class Op>
-auto operator>(Op op, std::ostream &os) ->
-decltype((void)(op(std::declval<std::vector<int>>().begin(),
-                   std::declval<std::vector<int>>().end())),
-          std::declval<broker<Op>>())
-{ return {op, os}; }
+auto operator>(Op &&op, std::ostream &os)
+  -> first_t<broker<Op>, decltype(op(std::declval<std::vector<int>>().begin(),
+                                     std::declval<std::vector<int>>().end()))>
+{ return {std::forward<Op>(op), os}; }
 
 
 template <class Seq, class Broker>
