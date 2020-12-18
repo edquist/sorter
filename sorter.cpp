@@ -29,6 +29,11 @@ using it_val_t = typename std::remove_const<
 >::type;
 
 
+// return first type; discard other types used to test expressions
+template <class T, class ...>
+using first_t = T;
+
+
 // range to wrap an arbitrary iterator pair
 template <class It, class End=It>
 struct iter_range {
@@ -197,6 +202,7 @@ struct printer_os {
 };
 
 
+
 // initialize Op with -flag
 template <class Op, class Flag>
 struct flagger { Op operator-(Flag flag) { return {flag}; } };
@@ -231,6 +237,39 @@ sorter operator-(sorter, flag_option<'n'>) { return {}; }
 uniq_counter operator-(uniq_lister, flag_option<'c'>) { return {}; }
 
 
+// 'output' range to ostream
+template <class Seq>
+auto operator>(Seq &&seq, std::ostream &os) ->
+decltype(std::forward<Seq>(seq) | printer_os{os} )
+{ return std::forward<Seq>(seq) | printer_os{os}; }
+
+
+// break-out broker for reversing operator precedence
+template <class Op>
+struct broker {
+	Op op;
+	std::ostream &os;
+};
+
+
+// let broker handle 'op > out' if op takes a range (rather than returns one)
+template <class Op>
+auto operator>(Op &&op, std::ostream &os)
+  -> first_t<broker<Op>, decltype(op(std::declval<std::vector<int>>().begin(),
+                                     std::declval<std::vector<int>>().end()))>
+{ return {std::forward<Op>(op), os}; }
+
+
+// break-out items from broker to reverse '|' vs '>' operator precedence
+// seq | broker {op, out} -> (seq | op) > out
+template <class Seq, class Broker>
+auto operator|(Seq &&seq, Broker &&b) ->
+decltype((std::forward<Seq>(seq) | std::forward<Broker>(b).op)
+                                 > std::forward<Broker>(b).os)
+{ return (std::forward<Seq>(seq) | std::forward<Broker>(b).op)
+                                 > std::forward<Broker>(b).os; }
+
+
 // map (n,m) -> n*1000 + m
 struct pairstacker {
 	template <class Pair>
@@ -249,18 +288,18 @@ int main()
 	            4, 4, 4, 4,
 	            2, 2, 2, 2, 2};
 
-	seq | sort | uniq | printy -std::cout;
+	seq | sort | uniq                               > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | printy -std::cout;
+	seq | sort | uniq -c | sort -n                  > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | head -3 | printy -std::cout;
+	seq | sort | uniq -c | sort -n | head -3        > std::cout;
 
-	echo -"\n----------\n" | printy -std::cout;
+	echo -"\n----------\n"                          > std::cout;
 
-	seq | sort | uniq -c | sort -n | map -pairstack | printy -std::cout;
+	seq | sort | uniq -c | sort -n | map -pairstack > std::cout;
 }
 
