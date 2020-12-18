@@ -244,6 +244,7 @@ decltype(std::forward<Seq>(seq) | printer_os{os} )
 { return std::forward<Seq>(seq) | printer_os{os}; }
 
 
+// break-out broker for reversing operator precedence
 template <class Op>
 struct broker {
 	Op op;
@@ -251,6 +252,7 @@ struct broker {
 };
 
 
+// let broker handle 'op > out' if op takes a range (rather than returns one)
 template <class Op>
 auto operator>(Op &&op, std::ostream &os)
   -> first_t<broker<Op>, decltype(op(std::declval<std::vector<int>>().begin(),
@@ -258,6 +260,8 @@ auto operator>(Op &&op, std::ostream &os)
 { return {std::forward<Op>(op), os}; }
 
 
+// break-out items from broker to reverse '|' vs '>' operator precedence
+// seq | broker {op, out} -> (seq | op) > out
 template <class Seq, class Broker>
 auto operator|(Seq &&seq, Broker &&b) ->
 decltype((std::forward<Seq>(seq) | std::forward<Broker>(b).op)
