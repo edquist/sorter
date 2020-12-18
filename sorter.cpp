@@ -240,8 +240,8 @@ uniq_counter operator-(uniq_lister, flag_option<'c'>) { return {}; }
 // 'output' range to ostream
 template <class Seq>
 auto operator>(Seq &&seq, std::ostream &os) ->
-decltype(seq | printer_os{os} )
-{ return seq | printer_os{os}; }
+decltype(std::forward<Seq>(seq) | printer_os{os} )
+{ return std::forward<Seq>(seq) | printer_os{os}; }
 
 
 template <class Op>
